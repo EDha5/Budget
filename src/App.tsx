@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import type { FormEvent, ReactNode } from 'react'
 import {
   closestCenter,
@@ -84,6 +84,9 @@ const panelClassNames: Record<PanelId, string> = {
   spendingHistory: 'expense-list-panel',
 }
 
+const masonryGap = 18
+const masonryRowHeight = 8
+
 const today = new Date().toISOString().slice(0, 10)
 
 function userCollection(uid: string, path: string) {
@@ -139,6 +142,8 @@ function SortablePanel({
   id: PanelId
   position: number
 }) {
+  const panelRef = useRef<HTMLDivElement | null>(null)
+  const [rowSpan, setRowSpan] = useState(1)
   const {
     attributes,
     listeners,
@@ -147,9 +152,29 @@ function SortablePanel({
     transition,
     isDragging,
   } = useSortable({ id })
+
+  useLayoutEffect(() => {
+    const element = panelRef.current
+    if (!element) {
+      return
+    }
+
+    const updateRowSpan = () => {
+      const height = element.getBoundingClientRect().height
+      setRowSpan(Math.ceil((height + masonryGap) / (masonryRowHeight + masonryGap)))
+    }
+
+    updateRowSpan()
+    const observer = new ResizeObserver(updateRowSpan)
+    observer.observe(element)
+
+    return () => observer.disconnect()
+  }, [])
+
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
+    gridRowEnd: `span ${rowSpan}`,
     order: position,
   }
 
@@ -158,7 +183,10 @@ function SortablePanel({
       className={`sortable-panel ${panelClassNames[id]}-slot ${
         isDragging ? 'is-dragging' : ''
       }`}
-      ref={setNodeRef}
+      ref={(node) => {
+        panelRef.current = node
+        setNodeRef(node)
+      }}
       style={style}
     >
       <button

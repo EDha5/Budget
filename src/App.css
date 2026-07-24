@@ -250,6 +250,8 @@ button svg {
 .dashboard-grid {
   display: grid;
   grid-template-columns: minmax(360px, 1.35fr) minmax(320px, 0.9fr);
+  grid-auto-flow: dense;
+  grid-auto-rows: 8px;
   gap: 18px;
   align-items: start;
 }
@@ -257,6 +259,7 @@ button svg {
 .sortable-panel {
   position: relative;
   min-width: 0;
+  align-self: start;
 }
 
 .sortable-panel.is-dragging {
@@ -295,7 +298,6 @@ button svg {
   border: 1px solid #e2e8f0;
   border-radius: 8px;
   background: #ffffff;
-  height: 100%;
   padding: 18px 18px 18px 54px;
 }
 
@@ -396,11 +398,6 @@ button svg {
 
 .category-form input[type='color'] {
   padding: 4px;
-}
-
-.expense-list-panel-slot,
-.goals-panel-slot {
-  grid-column: 1 / -1;
 }
 
 .expense-row,
