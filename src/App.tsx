@@ -598,88 +598,6 @@ function App() {
         </section>
 
         <section className="dashboard-grid">
-          <div className="panel income-panel">
-            <div className="panel-header">
-              <div>
-                <span className="eyebrow">Money in</span>
-                <h3>Add income</h3>
-              </div>
-              <TrendingUp aria-hidden="true" />
-            </div>
-
-            <form className="income-form" onSubmit={createIncome}>
-              <label>
-                Amount
-                <input
-                  min="0.01"
-                  step="0.01"
-                  type="number"
-                  value={incomeForm.amount}
-                  onChange={(event) =>
-                    setIncomeForm({ ...incomeForm, amount: event.target.value })
-                  }
-                  placeholder="50"
-                  required
-                />
-              </label>
-              <label>
-                Source
-                <input
-                  value={incomeForm.source}
-                  onChange={(event) =>
-                    setIncomeForm({ ...incomeForm, source: event.target.value })
-                  }
-                  placeholder="Sold fridge"
-                />
-              </label>
-              <label>
-                Date
-                <input
-                  type="date"
-                  value={incomeForm.receivedAt}
-                  onChange={(event) =>
-                    setIncomeForm({ ...incomeForm, receivedAt: event.target.value })
-                  }
-                />
-              </label>
-              <label>
-                Notes
-                <input
-                  value={incomeForm.notes}
-                  onChange={(event) =>
-                    setIncomeForm({ ...incomeForm, notes: event.target.value })
-                  }
-                  placeholder="Optional note"
-                />
-              </label>
-              <button className="primary-action wide-field" type="submit">
-                <Plus aria-hidden="true" />
-                Add income
-              </button>
-            </form>
-
-            <div className="income-list">
-              {income.map((incomeItem) => (
-                <article className="income-row" key={incomeItem.id}>
-                  <div>
-                    <strong>{incomeItem.source || 'Income'}</strong>
-                    <span>{incomeItem.receivedAt}</span>
-                  </div>
-                  <div className="expense-row-actions">
-                    <strong>{money(incomeItem.amount)}</strong>
-                    <button
-                      type="button"
-                      aria-label={`Delete ${incomeItem.source || 'income'}`}
-                      onClick={() => removeIncome(incomeItem.id)}
-                    >
-                      <Trash2 aria-hidden="true" />
-                    </button>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-
           <div className="panel chart-panel">
             <div className="panel-header">
               <div>
@@ -803,6 +721,88 @@ function App() {
                 Add expense
               </button>
             </form>
+          </div>
+
+          <div className="panel income-panel">
+            <div className="panel-header">
+              <div>
+                <span className="eyebrow">Money in</span>
+                <h3>Add income</h3>
+              </div>
+              <TrendingUp aria-hidden="true" />
+            </div>
+
+            <form className="income-form" onSubmit={createIncome}>
+              <label>
+                Amount
+                <input
+                  min="0.01"
+                  step="0.01"
+                  type="number"
+                  value={incomeForm.amount}
+                  onChange={(event) =>
+                    setIncomeForm({ ...incomeForm, amount: event.target.value })
+                  }
+                  placeholder="50"
+                  required
+                />
+              </label>
+              <label>
+                Source
+                <input
+                  value={incomeForm.source}
+                  onChange={(event) =>
+                    setIncomeForm({ ...incomeForm, source: event.target.value })
+                  }
+                  placeholder="Sold fridge"
+                />
+              </label>
+              <label>
+                Date
+                <input
+                  type="date"
+                  value={incomeForm.receivedAt}
+                  onChange={(event) =>
+                    setIncomeForm({ ...incomeForm, receivedAt: event.target.value })
+                  }
+                />
+              </label>
+              <label>
+                Notes
+                <input
+                  value={incomeForm.notes}
+                  onChange={(event) =>
+                    setIncomeForm({ ...incomeForm, notes: event.target.value })
+                  }
+                  placeholder="Optional note"
+                />
+              </label>
+              <button className="primary-action wide-field" type="submit">
+                <Plus aria-hidden="true" />
+                Add income
+              </button>
+            </form>
+
+            <div className="income-list">
+              {income.map((incomeItem) => (
+                <article className="income-row" key={incomeItem.id}>
+                  <div>
+                    <strong>{incomeItem.source || 'Income'}</strong>
+                    <span>{incomeItem.receivedAt}</span>
+                  </div>
+                  <div className="expense-row-actions">
+                    <strong>{money(incomeItem.amount)}</strong>
+                    <button
+                      type="button"
+                      aria-label={`Delete ${incomeItem.source || 'income'}`}
+                      onClick={() => removeIncome(incomeItem.id)}
+                    >
+                      <Trash2 aria-hidden="true" />
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
           </div>
 
           <div className="panel category-panel">
