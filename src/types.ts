@@ -31,3 +31,27 @@ export type Expense = {
   createdAt?: Timestamp
   updatedAt?: Timestamp
 }
+
+export type Income = {
+  id: string
+  trackerId: string
+  source: string
+  amount: number
+  receivedAt: string
+  notes: string
+  ownerId: string
+  createdAt?: Timestamp
+  updatedAt?: Timestamp
+}
+
+export type Goal = {
+  id: string
+  trackerId: string
+  name: string
+  targetAmount: number
+  targetDate: string
+  startingAmount: number
+  ownerId: string
+  createdAt?: Timestamp
+  updatedAt?: Timestamp
+}

@@ -32,11 +32,43 @@ users/{uid}/trackers/{trackerId}/expenses/{expenseId}
   ownerId: string
   createdAt: timestamp
   updatedAt: timestamp
+
+users/{uid}/trackers/{trackerId}/income/{incomeId}
+  trackerId: string
+  source: string
+  amount: number
+  receivedAt: string
+  notes: string
+  ownerId: string
+  createdAt: timestamp
+  updatedAt: timestamp
+
+users/{uid}/trackers/{trackerId}/goals/{goalId}
+  trackerId: string
+  name: string
+  targetAmount: number
+  targetDate: string
+  startingAmount: number
+  ownerId: string
+  createdAt: timestamp
+  updatedAt: timestamp
 ```
 
 ## Realtime updates
 
-The UI subscribes with Firestore `onSnapshot` listeners for the selected tracker's categories and expenses. When an expense or category changes, the pie chart and recent spending list update automatically.
+The UI subscribes with Firestore `onSnapshot` listeners for the selected tracker's categories, expenses, income, and goals. When one of those records changes, the totals, pie chart, recent lists, and monthly goal calculations update automatically.
+
+## Goal calculation
+
+For each goal, the app calculates:
+
+```text
+current saved = startingAmount + total income - total expenses
+remaining = targetAmount - current saved
+monthly savings needed = remaining / months until targetDate
+```
+
+If the goal date has already arrived, the app treats it as one month remaining so the user still gets a usable monthly savings number.
 
 ## Security model
 

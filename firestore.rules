@@ -38,6 +38,25 @@ service cloud.firestore {
             && request.resource.data.amount > 0;
           allow delete: if ownsUserDoc(uid);
         }
+
+        match /income/{incomeId} {
+          allow read: if ownsUserDoc(uid);
+          allow create, update: if ownsIncomingDoc(uid)
+            && request.resource.data.trackerId == trackerId
+            && request.resource.data.amount is number
+            && request.resource.data.amount > 0;
+          allow delete: if ownsUserDoc(uid);
+        }
+
+        match /goals/{goalId} {
+          allow read: if ownsUserDoc(uid);
+          allow create, update: if ownsIncomingDoc(uid)
+            && request.resource.data.trackerId == trackerId
+            && request.resource.data.targetAmount is number
+            && request.resource.data.targetAmount > 0
+            && request.resource.data.startingAmount is number;
+          allow delete: if ownsUserDoc(uid);
+        }
       }
     }
   }

@@ -73,20 +73,26 @@
 .brand-row span,
 .eyebrow,
 .total-box span,
-.expense-row span {
+.expense-row span,
+.income-row span,
+.goal-row span {
   color: #64748b;
   font-size: 13px;
 }
 
 .compact-form,
 .expense-form,
-.category-form {
+.category-form,
+.goal-form,
+.income-form {
   display: grid;
   gap: 10px;
 }
 
 .compact-form label,
-.expense-form label {
+.expense-form label,
+.goal-form label,
+.income-form label {
   display: grid;
   gap: 7px;
   color: #334155;
@@ -216,6 +222,31 @@ button svg {
   font-size: 24px;
 }
 
+.summary-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.summary-strip div {
+  display: grid;
+  gap: 3px;
+  padding: 14px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.summary-strip span {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.summary-strip strong {
+  font-size: 22px;
+}
+
 .dashboard-grid {
   display: grid;
   grid-template-columns: minmax(360px, 1.35fr) minmax(320px, 0.9fr);
@@ -250,13 +281,16 @@ button svg {
 
 .legend-grid,
 .category-list,
-.expense-list {
+.expense-list,
+.income-list,
+.goal-list {
   display: grid;
   gap: 10px;
 }
 
 .legend-row,
-.expense-row {
+.expense-row,
+.income-row {
   display: grid;
   align-items: center;
   gap: 10px;
@@ -281,6 +315,12 @@ button svg {
 
 .expense-form {
   grid-template-columns: 1fr 1fr;
+}
+
+.goal-form,
+.income-form {
+  grid-template-columns: 1fr 1fr;
+  margin-bottom: 16px;
 }
 
 .wide-field {
@@ -320,23 +360,27 @@ button svg {
   padding: 4px;
 }
 
-.expense-list-panel {
+.expense-list-panel,
+.goals-panel {
   grid-column: 1 / -1;
 }
 
-.expense-row {
+.expense-row,
+.income-row {
   grid-template-columns: 1fr auto;
   min-height: 58px;
   border-top: 1px solid #e2e8f0;
   padding-top: 10px;
 }
 
-.expense-row:first-child {
+.expense-row:first-child,
+.income-row:first-child {
   border-top: 0;
   padding-top: 0;
 }
 
-.expense-row > div:first-child {
+.expense-row > div:first-child,
+.income-row > div:first-child {
   display: grid;
   gap: 2px;
 }
@@ -353,6 +397,64 @@ button svg {
   padding: 0;
   background: #fee2e2;
   color: #b91c1c;
+}
+
+.goal-row {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.goal-row-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.goal-row-header > div {
+  display: grid;
+  gap: 2px;
+}
+
+.goal-row-header button {
+  width: 34px;
+  min-height: 34px;
+  padding: 0;
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.progress-bar {
+  height: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e2e8f0;
+}
+
+.progress-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #0f766e;
+}
+
+.goal-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.goal-metrics div {
+  display: grid;
+  gap: 2px;
+}
+
+.goal-metrics strong {
+  font-size: 16px;
 }
 
 .empty-state {
@@ -403,6 +505,13 @@ button svg {
   }
 
   .expense-form {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-strip,
+  .goal-metrics,
+  .goal-form,
+  .income-form {
     grid-template-columns: 1fr;
   }
 
