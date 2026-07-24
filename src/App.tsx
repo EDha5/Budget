@@ -598,127 +598,6 @@ function App() {
         </section>
 
         <section className="dashboard-grid">
-          <div className="panel goals-panel">
-            <div className="panel-header">
-              <div>
-                <span className="eyebrow">Savings goals</span>
-                <h3>Goal tracker</h3>
-              </div>
-              <Target aria-hidden="true" />
-            </div>
-
-            <form className="goal-form" onSubmit={createGoal}>
-              <label>
-                Goal name
-                <input
-                  value={goalForm.name}
-                  onChange={(event) =>
-                    setGoalForm({ ...goalForm, name: event.target.value })
-                  }
-                  placeholder="New trailer fund"
-                  required
-                />
-              </label>
-              <label>
-                Target amount
-                <input
-                  min="0.01"
-                  step="0.01"
-                  type="number"
-                  value={goalForm.targetAmount}
-                  onChange={(event) =>
-                    setGoalForm({ ...goalForm, targetAmount: event.target.value })
-                  }
-                  placeholder="2500"
-                  required
-                />
-              </label>
-              <label>
-                Saved already
-                <input
-                  min="0"
-                  step="0.01"
-                  type="number"
-                  value={goalForm.startingAmount}
-                  onChange={(event) =>
-                    setGoalForm({ ...goalForm, startingAmount: event.target.value })
-                  }
-                  placeholder="100"
-                />
-              </label>
-              <label>
-                By date
-                <input
-                  type="date"
-                  value={goalForm.targetDate}
-                  onChange={(event) =>
-                    setGoalForm({ ...goalForm, targetDate: event.target.value })
-                  }
-                  required
-                />
-              </label>
-              <button className="primary-action wide-field" type="submit">
-                <Plus aria-hidden="true" />
-                Add goal
-              </button>
-            </form>
-
-            <div className="goal-list">
-              {goals.length === 0 ? (
-                <div className="empty-state slim">
-                  <Target aria-hidden="true" />
-                  <span>No savings goals yet.</span>
-                </div>
-              ) : (
-                goals.map((goal) => {
-                  const currentAmount = goal.startingAmount + netSaved
-                  const remaining = Math.max(0, goal.targetAmount - currentAmount)
-                  const monthsRemaining = monthsUntil(goal.targetDate)
-                  const monthlySavings = remaining / monthsRemaining
-                  const progress = Math.min(
-                    100,
-                    Math.max(0, (currentAmount / goal.targetAmount) * 100),
-                  )
-
-                  return (
-                    <article className="goal-row" key={goal.id}>
-                      <div className="goal-row-header">
-                        <div>
-                          <strong>{goal.name}</strong>
-                          <span>Due {goal.targetDate}</span>
-                        </div>
-                        <button
-                          type="button"
-                          aria-label={`Delete ${goal.name}`}
-                          onClick={() => removeGoal(goal.id)}
-                        >
-                          <Trash2 aria-hidden="true" />
-                        </button>
-                      </div>
-                      <div className="progress-bar" aria-hidden="true">
-                        <span style={{ width: `${progress}%` }} />
-                      </div>
-                      <div className="goal-metrics">
-                        <div>
-                          <span>Saved now</span>
-                          <strong>{money(currentAmount)}</strong>
-                        </div>
-                        <div>
-                          <span>Goal</span>
-                          <strong>{money(goal.targetAmount)}</strong>
-                        </div>
-                        <div>
-                          <span>Save monthly</span>
-                          <strong>{money(monthlySavings)}</strong>
-                        </div>
-                      </div>
-                    </article>
-                  )
-                })
-              )}
-            </div>
-          </div>
-
           <div className="panel income-panel">
             <div className="panel-header">
               <div>
@@ -1012,6 +891,127 @@ function App() {
                     </div>
                   </article>
                 ))
+              )}
+            </div>
+          </div>
+
+          <div className="panel goals-panel">
+            <div className="panel-header">
+              <div>
+                <span className="eyebrow">Savings goals</span>
+                <h3>Goal tracker</h3>
+              </div>
+              <Target aria-hidden="true" />
+            </div>
+
+            <form className="goal-form" onSubmit={createGoal}>
+              <label>
+                Goal name
+                <input
+                  value={goalForm.name}
+                  onChange={(event) =>
+                    setGoalForm({ ...goalForm, name: event.target.value })
+                  }
+                  placeholder="New trailer fund"
+                  required
+                />
+              </label>
+              <label>
+                Target amount
+                <input
+                  min="0.01"
+                  step="0.01"
+                  type="number"
+                  value={goalForm.targetAmount}
+                  onChange={(event) =>
+                    setGoalForm({ ...goalForm, targetAmount: event.target.value })
+                  }
+                  placeholder="2500"
+                  required
+                />
+              </label>
+              <label>
+                Saved already
+                <input
+                  min="0"
+                  step="0.01"
+                  type="number"
+                  value={goalForm.startingAmount}
+                  onChange={(event) =>
+                    setGoalForm({ ...goalForm, startingAmount: event.target.value })
+                  }
+                  placeholder="100"
+                />
+              </label>
+              <label>
+                By date
+                <input
+                  type="date"
+                  value={goalForm.targetDate}
+                  onChange={(event) =>
+                    setGoalForm({ ...goalForm, targetDate: event.target.value })
+                  }
+                  required
+                />
+              </label>
+              <button className="primary-action wide-field" type="submit">
+                <Plus aria-hidden="true" />
+                Add goal
+              </button>
+            </form>
+
+            <div className="goal-list">
+              {goals.length === 0 ? (
+                <div className="empty-state slim">
+                  <Target aria-hidden="true" />
+                  <span>No savings goals yet.</span>
+                </div>
+              ) : (
+                goals.map((goal) => {
+                  const currentAmount = goal.startingAmount + netSaved
+                  const remaining = Math.max(0, goal.targetAmount - currentAmount)
+                  const monthsRemaining = monthsUntil(goal.targetDate)
+                  const monthlySavings = remaining / monthsRemaining
+                  const progress = Math.min(
+                    100,
+                    Math.max(0, (currentAmount / goal.targetAmount) * 100),
+                  )
+
+                  return (
+                    <article className="goal-row" key={goal.id}>
+                      <div className="goal-row-header">
+                        <div>
+                          <strong>{goal.name}</strong>
+                          <span>Due {goal.targetDate}</span>
+                        </div>
+                        <button
+                          type="button"
+                          aria-label={`Delete ${goal.name}`}
+                          onClick={() => removeGoal(goal.id)}
+                        >
+                          <Trash2 aria-hidden="true" />
+                        </button>
+                      </div>
+                      <div className="progress-bar" aria-hidden="true">
+                        <span style={{ width: `${progress}%` }} />
+                      </div>
+                      <div className="goal-metrics">
+                        <div>
+                          <span>Saved now</span>
+                          <strong>{money(currentAmount)}</strong>
+                        </div>
+                        <div>
+                          <span>Goal</span>
+                          <strong>{money(goal.targetAmount)}</strong>
+                        </div>
+                        <div>
+                          <span>Save monthly</span>
+                          <strong>{money(monthlySavings)}</strong>
+                        </div>
+                      </div>
+                    </article>
+                  )
+                })
               )}
             </div>
           </div>
