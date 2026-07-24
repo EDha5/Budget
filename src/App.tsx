@@ -858,43 +858,6 @@ function App() {
             </div>
           </div>
 
-          <div className="panel expense-list-panel">
-            <div className="panel-header">
-              <div>
-                <span className="eyebrow">Live entries</span>
-                <h3>Recent spending</h3>
-              </div>
-            </div>
-
-            <div className="expense-list">
-              {expenses.length === 0 ? (
-                <div className="empty-state slim">
-                  <CircleDollarSign aria-hidden="true" />
-                  <span>No spending entries yet.</span>
-                </div>
-              ) : (
-                expenses.map((expense) => (
-                  <article key={expense.id} className="expense-row">
-                    <div>
-                      <strong>{expense.merchant || expense.categoryName}</strong>
-                      <span>{expense.categoryName} · {expense.spentAt}</span>
-                    </div>
-                    <div className="expense-row-actions">
-                      <strong>{money(expense.amount)}</strong>
-                      <button
-                        type="button"
-                        aria-label={`Delete ${expense.merchant || expense.categoryName}`}
-                        onClick={() => removeExpense(expense.id)}
-                      >
-                        <Trash2 aria-hidden="true" />
-                      </button>
-                    </div>
-                  </article>
-                ))
-              )}
-            </div>
-          </div>
-
           <div className="panel goals-panel">
             <div className="panel-header">
               <div>
@@ -1012,6 +975,43 @@ function App() {
                     </article>
                   )
                 })
+              )}
+            </div>
+          </div>
+
+          <div className="panel expense-list-panel">
+            <div className="panel-header">
+              <div>
+                <span className="eyebrow">Live entries</span>
+                <h3>Recent spending</h3>
+              </div>
+            </div>
+
+            <div className="expense-list">
+              {expenses.length === 0 ? (
+                <div className="empty-state slim">
+                  <CircleDollarSign aria-hidden="true" />
+                  <span>No spending entries yet.</span>
+                </div>
+              ) : (
+                expenses.map((expense) => (
+                  <article key={expense.id} className="expense-row">
+                    <div>
+                      <strong>{expense.merchant || expense.categoryName}</strong>
+                      <span>{expense.categoryName} · {expense.spentAt}</span>
+                    </div>
+                    <div className="expense-row-actions">
+                      <strong>{money(expense.amount)}</strong>
+                      <button
+                        type="button"
+                        aria-label={`Delete ${expense.merchant || expense.categoryName}`}
+                        onClick={() => removeExpense(expense.id)}
+                      >
+                        <Trash2 aria-hidden="true" />
+                      </button>
+                    </div>
+                  </article>
+                ))
               )}
             </div>
           </div>
