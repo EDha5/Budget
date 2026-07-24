@@ -256,7 +256,6 @@ button svg {
 }
 
 .legend-row,
-.category-list div,
 .expense-row {
   display: grid;
   align-items: center;
@@ -288,9 +287,33 @@ button svg {
   grid-column: 1 / -1;
 }
 
-.category-list div {
-  grid-template-columns: 12px 1fr;
+.category-row {
+  display: grid;
+  grid-template-columns: 1fr 34px;
+  align-items: center;
+  gap: 10px;
   min-height: 28px;
+}
+
+.category-row > div {
+  display: grid;
+  grid-template-columns: 12px 1fr;
+  align-items: center;
+  gap: 10px;
+}
+
+.category-row button {
+  width: 34px;
+  min-height: 34px;
+  padding: 0;
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.category-row button:disabled {
+  cursor: not-allowed;
+  background: #f1f5f9;
+  color: #94a3b8;
 }
 
 .category-form input[type='color'] {

@@ -162,7 +162,9 @@ function App() {
       setCategories(nextCategories)
       setExpenseForm((current) => ({
         ...current,
-        categoryId: current.categoryId || nextCategories[0]?.id || '',
+        categoryId: nextCategories.some((category) => category.id === current.categoryId)
+          ? current.categoryId
+          : nextCategories[0]?.id || '',
       }))
     })
     const unsubscribeExpenses = onSnapshot(expensesQuery, (snapshot) => {
@@ -299,6 +301,23 @@ function App() {
     }
 
     await deleteDoc(doc(db, 'users', user.uid, 'trackers', selectedTrackerId, 'expenses', expenseId))
+  }
+
+  const removeCategory = async (category: SpendingCategory) => {
+    if (!user || !selectedTrackerId) {
+      return
+    }
+
+    const categoryHasExpenses = expenses.some(
+      (expense) => expense.categoryId === category.id,
+    )
+    if (categoryHasExpenses) {
+      return
+    }
+
+    await deleteDoc(
+      doc(db, 'users', user.uid, 'trackers', selectedTrackerId, 'categories', category.id),
+    )
   }
 
   const signIn = () => signInWithPopup(auth, googleProvider)
@@ -567,10 +586,27 @@ function App() {
 
             <div className="category-list">
               {categories.map((category) => (
-                <div key={category.id}>
-                  <span style={{ background: category.color }} />
-                  <p>{category.name}</p>
-                </div>
+                <article key={category.id} className="category-row">
+                  <div>
+                    <span style={{ background: category.color }} />
+                    <p>{category.name}</p>
+                  </div>
+                  <button
+                    type="button"
+                    aria-label={`Delete ${category.name}`}
+                    disabled={expenses.some(
+                      (expense) => expense.categoryId === category.id,
+                    )}
+                    title={
+                      expenses.some((expense) => expense.categoryId === category.id)
+                        ? 'Delete expenses in this category first'
+                        : `Delete ${category.name}`
+                    }
+                    onClick={() => removeCategory(category)}
+                  >
+                    <Trash2 aria-hidden="true" />
+                  </button>
+                </article>
               ))}
             </div>
           </div>
