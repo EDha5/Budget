@@ -26,6 +26,8 @@ users/{uid}/trackers/{trackerId}/expenses/{expenseId}
   trackerId: string
   categoryId: string
   categoryName: string
+  goalId: string
+  goalName: string
   amount: number
   merchant: string
   notes: string
@@ -36,6 +38,8 @@ users/{uid}/trackers/{trackerId}/expenses/{expenseId}
 
 users/{uid}/trackers/{trackerId}/income/{incomeId}
   trackerId: string
+  goalId: string
+  goalName: string
   source: string
   amount: number
   receivedAt: string
@@ -64,7 +68,7 @@ The UI subscribes with Firestore `onSnapshot` listeners for the selected tracker
 For each goal, the app calculates:
 
 ```text
-current saved = startingAmount + total income - total expenses
+current saved = startingAmount + income assigned to this goal - expenses assigned to this goal
 remaining = targetAmount - current saved
 monthly savings needed = remaining / months until targetDate
 ```

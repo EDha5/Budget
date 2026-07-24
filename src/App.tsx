@@ -221,12 +221,14 @@ function App() {
     amount: '',
     merchant: '',
     categoryId: '',
+    goalId: '',
     spentAt: today,
     notes: '',
   })
   const [incomeForm, setIncomeForm] = useState({
     amount: '',
     source: '',
+    goalId: '',
     receivedAt: today,
     notes: '',
   })
@@ -408,6 +410,11 @@ function App() {
   const totalIncome = income.reduce((sum, item) => sum + item.amount, 0)
   const netSaved = totalIncome - totalSpent
 
+  const goalOptions = goals.map((goal) => ({
+    id: goal.id,
+    name: goal.name,
+  }))
+
   const createTracker = async (event: FormEvent) => {
     event.preventDefault()
     if (!user || !trackerName.trim()) {
@@ -463,6 +470,7 @@ function App() {
 
     const amount = Number(expenseForm.amount)
     const category = categories.find((item) => item.id === expenseForm.categoryId)
+    const goal = goals.find((item) => item.id === expenseForm.goalId)
     if (!Number.isFinite(amount) || amount <= 0 || !category) {
       return
     }
@@ -471,6 +479,8 @@ function App() {
       trackerId: selectedTrackerId,
       categoryId: category.id,
       categoryName: category.name,
+      goalId: goal?.id ?? '',
+      goalName: goal?.name ?? '',
       amount,
       merchant: expenseForm.merchant.trim(),
       notes: expenseForm.notes.trim(),
@@ -488,6 +498,7 @@ function App() {
       amount: '',
       merchant: '',
       categoryId: category.id,
+      goalId: goal?.id ?? '',
       spentAt: today,
       notes: '',
     })
@@ -500,12 +511,15 @@ function App() {
     }
 
     const amount = Number(incomeForm.amount)
+    const goal = goals.find((item) => item.id === incomeForm.goalId)
     if (!Number.isFinite(amount) || amount <= 0) {
       return
     }
 
     await addDoc(trackerSubcollection(user.uid, selectedTrackerId, 'income'), {
       trackerId: selectedTrackerId,
+      goalId: goal?.id ?? '',
+      goalName: goal?.name ?? '',
       source: incomeForm.source.trim(),
       amount,
       receivedAt: incomeForm.receivedAt || today,
@@ -522,6 +536,7 @@ function App() {
     setIncomeForm({
       amount: '',
       source: '',
+      goalId: goal?.id ?? '',
       receivedAt: today,
       notes: '',
     })
@@ -880,6 +895,22 @@ function App() {
                   }
                 />
               </label>
+              <label>
+                Take from goal
+                <select
+                  value={expenseForm.goalId}
+                  onChange={(event) =>
+                    setExpenseForm({ ...expenseForm, goalId: event.target.value })
+                  }
+                >
+                  <option value="">No goal</option>
+                  {goalOptions.map((goal) => (
+                    <option key={goal.id} value={goal.id}>
+                      {goal.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
               <label className="wide-field">
                 Notes
                 <textarea
@@ -944,6 +975,22 @@ function App() {
                 />
               </label>
               <label>
+                Goes to goal
+                <select
+                  value={incomeForm.goalId}
+                  onChange={(event) =>
+                    setIncomeForm({ ...incomeForm, goalId: event.target.value })
+                  }
+                >
+                  <option value="">No goal</option>
+                  {goalOptions.map((goal) => (
+                    <option key={goal.id} value={goal.id}>
+                      {goal.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
                 Notes
                 <input
                   value={incomeForm.notes}
@@ -964,7 +1011,10 @@ function App() {
                 <article className="income-row" key={incomeItem.id}>
                   <div>
                     <strong>{incomeItem.source || 'Income'}</strong>
-                    <span>{incomeItem.receivedAt}</span>
+                    <span>
+                      {incomeItem.receivedAt}
+                      {incomeItem.goalName ? ` · ${incomeItem.goalName}` : ''}
+                    </span>
                   </div>
                   <div className="expense-row-actions">
                     <strong>{money(incomeItem.amount)}</strong>
@@ -1111,7 +1161,13 @@ function App() {
                 </div>
               ) : (
                 goals.map((goal) => {
-                  const currentAmount = goal.startingAmount + netSaved
+                  const goalIncome = income
+                    .filter((incomeItem) => incomeItem.goalId === goal.id)
+                    .reduce((sum, incomeItem) => sum + incomeItem.amount, 0)
+                  const goalSpending = expenses
+                    .filter((expense) => expense.goalId === goal.id)
+                    .reduce((sum, expense) => sum + expense.amount, 0)
+                  const currentAmount = goal.startingAmount + goalIncome - goalSpending
                   const remaining = Math.max(0, goal.targetAmount - currentAmount)
                   const monthsRemaining = monthsUntil(goal.targetDate)
                   const monthlySavings = remaining / monthsRemaining
@@ -1148,6 +1204,10 @@ function App() {
                           <strong>{money(goal.targetAmount)}</strong>
                         </div>
                         <div>
+                          <span>Assigned in/out</span>
+                          <strong>{money(goalIncome)} / {money(goalSpending)}</strong>
+                        </div>
+                        <div>
                           <span>Save monthly</span>
                           <strong>{money(monthlySavings)}</strong>
                         </div>
@@ -1180,7 +1240,10 @@ function App() {
                   <article key={expense.id} className="expense-row">
                     <div>
                       <strong>{expense.merchant || expense.categoryName}</strong>
-                      <span>{expense.categoryName} · {expense.spentAt}</span>
+                      <span>
+                        {expense.categoryName} · {expense.spentAt}
+                        {expense.goalName ? ` · ${expense.goalName}` : ''}
+                      </span>
                     </div>
                     <div className="expense-row-actions">
                       <strong>{money(expense.amount)}</strong>

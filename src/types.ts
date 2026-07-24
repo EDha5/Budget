@@ -24,6 +24,8 @@ export type Expense = {
   trackerId: string
   categoryId: string
   categoryName: string
+  goalId?: string
+  goalName?: string
   amount: number
   merchant: string
   notes: string
@@ -36,6 +38,8 @@ export type Expense = {
 export type Income = {
   id: string
   trackerId: string
+  goalId?: string
+  goalName?: string
   source: string
   amount: number
   receivedAt: string
