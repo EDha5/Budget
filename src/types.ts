@@ -4,6 +4,7 @@ export type Tracker = {
   id: string
   name: string
   description: string
+  panelOrder?: string[]
   ownerId: string
   createdAt?: Timestamp
   updatedAt?: Timestamp

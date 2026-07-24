@@ -254,11 +254,49 @@ button svg {
   align-items: start;
 }
 
+.sortable-panel {
+  position: relative;
+  min-width: 0;
+}
+
+.sortable-panel.is-dragging {
+  z-index: 5;
+}
+
+.sortable-panel.is-dragging .panel {
+  border-color: #0f766e;
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.18);
+}
+
+.drag-handle {
+  position: absolute;
+  top: 13px;
+  left: 13px;
+  z-index: 2;
+  width: 30px;
+  min-height: 30px;
+  padding: 0;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #64748b;
+  cursor: grab;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+.drag-handle:focus-visible {
+  outline: 2px solid #0f766e;
+  outline-offset: 2px;
+}
+
 .panel {
   border: 1px solid #e2e8f0;
   border-radius: 8px;
   background: #ffffff;
-  padding: 18px;
+  height: 100%;
+  padding: 18px 18px 18px 54px;
 }
 
 .panel-header {
@@ -360,8 +398,8 @@ button svg {
   padding: 4px;
 }
 
-.expense-list-panel,
-.goals-panel {
+.expense-list-panel-slot,
+.goals-panel-slot {
   grid-column: 1 / -1;
 }
 

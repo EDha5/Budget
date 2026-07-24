@@ -1,5 +1,22 @@
 import { useEffect, useMemo, useState } from 'react'
-import type { FormEvent } from 'react'
+import type { FormEvent, ReactNode } from 'react'
+import {
+  closestCenter,
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core'
+import type { DragEndEvent } from '@dnd-kit/core'
+import {
+  arrayMove,
+  rectSortingStrategy,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import {
   addDoc,
   collection,
@@ -26,6 +43,7 @@ import {
   Layers3,
   LogIn,
   LogOut,
+  GripVertical,
   Plus,
   Tags,
   Target,
@@ -45,6 +63,26 @@ const starterCategories = [
   { name: 'Utilities', color: '#dc2626' },
   { name: 'Rent', color: '#475569' },
 ]
+
+const defaultPanelOrder = [
+  'chart',
+  'expenseForm',
+  'income',
+  'categories',
+  'goals',
+  'spendingHistory',
+] as const
+
+type PanelId = (typeof defaultPanelOrder)[number]
+
+const panelClassNames: Record<PanelId, string> = {
+  chart: 'chart-panel',
+  expenseForm: 'form-panel',
+  income: 'income-panel',
+  categories: 'category-panel',
+  goals: 'goals-panel',
+  spendingHistory: 'expense-list-panel',
+}
 
 const today = new Date().toISOString().slice(0, 10)
 
@@ -81,6 +119,63 @@ function monthsUntil(dateText: string) {
   return Math.max(1, years * 12 + months + partialMonth)
 }
 
+function normalizePanelOrder(panelOrder?: string[]) {
+  const savedPanels = (panelOrder ?? []).filter((panel): panel is PanelId =>
+    defaultPanelOrder.includes(panel as PanelId),
+  )
+  const missingPanels = defaultPanelOrder.filter(
+    (panel) => !savedPanels.includes(panel),
+  )
+
+  return [...savedPanels, ...missingPanels]
+}
+
+function SortablePanel({
+  children,
+  id,
+  position,
+}: {
+  children: ReactNode
+  id: PanelId
+  position: number
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id })
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    order: position,
+  }
+
+  return (
+    <div
+      className={`sortable-panel ${panelClassNames[id]}-slot ${
+        isDragging ? 'is-dragging' : ''
+      }`}
+      ref={setNodeRef}
+      style={style}
+    >
+      <button
+        className="drag-handle"
+        type="button"
+        aria-label="Move panel"
+        title="Move panel"
+        {...attributes}
+        {...listeners}
+      >
+        <GripVertical aria-hidden="true" />
+      </button>
+      {children}
+    </div>
+  )
+}
+
 function App() {
   const [user, setUser] = useState<User | null>(null)
   const [authReady, setAuthReady] = useState(false)
@@ -90,6 +185,7 @@ function App() {
   const [expenses, setExpenses] = useState<Expense[]>([])
   const [income, setIncome] = useState<Income[]>([])
   const [goals, setGoals] = useState<Goal[]>([])
+  const [panelOrder, setPanelOrder] = useState<PanelId[]>([...defaultPanelOrder])
   const [trackerName, setTrackerName] = useState('')
   const [categoryName, setCategoryName] = useState('')
   const [categoryColor, setCategoryColor] = useState('#0f766e')
@@ -112,6 +208,16 @@ function App() {
     startingAmount: '',
     targetDate: today,
   })
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  )
 
   useEffect(() => {
     return onAuthStateChanged(auth, (nextUser) => {
@@ -148,6 +254,7 @@ function App() {
       await setDoc(trackerDoc(user.uid, defaultTrackerId), {
         name: 'Personal',
         description: 'Default spending tracker',
+        panelOrder: [...defaultPanelOrder],
         ownerId: user.uid,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
@@ -167,6 +274,12 @@ function App() {
 
     void createDefaultTracker()
   }, [trackers.length, user])
+
+  const selectedTracker = trackers.find((tracker) => tracker.id === selectedTrackerId)
+
+  useEffect(() => {
+    setPanelOrder(normalizePanelOrder(selectedTracker?.panelOrder))
+  }, [selectedTracker?.panelOrder, selectedTrackerId])
 
   useEffect(() => {
     if (!user || !selectedTrackerId) {
@@ -237,8 +350,6 @@ function App() {
     }
   }, [selectedTrackerId, user])
 
-  const selectedTracker = trackers.find((tracker) => tracker.id === selectedTrackerId)
-
   const categoryTotals = useMemo(() => {
     const totals = new Map<string, { name: string; color: string; value: number }>()
 
@@ -276,9 +387,10 @@ function App() {
     }
 
     const newTracker = await addDoc(userCollection(user.uid, 'trackers'), {
-      name: trackerName.trim(),
-      description: '',
-      ownerId: user.uid,
+        name: trackerName.trim(),
+        description: '',
+        panelOrder: [...defaultPanelOrder],
+        ownerId: user.uid,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     })
@@ -459,6 +571,31 @@ function App() {
     )
   }
 
+  const handlePanelDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) {
+      return
+    }
+
+    const activePanel = active.id as PanelId
+    const overPanel = over.id as PanelId
+    const oldIndex = panelOrder.indexOf(activePanel)
+    const newIndex = panelOrder.indexOf(overPanel)
+    if (oldIndex === -1 || newIndex === -1) {
+      return
+    }
+
+    const nextPanelOrder = arrayMove(panelOrder, oldIndex, newIndex)
+    setPanelOrder(nextPanelOrder)
+
+    if (user && selectedTrackerId) {
+      await updateDoc(trackerDoc(user.uid, selectedTrackerId), {
+        panelOrder: nextPanelOrder,
+        updatedAt: serverTimestamp(),
+      })
+    }
+  }
+
   const signIn = () => signInWithPopup(auth, googleProvider)
 
   const seedDemoData = async () => {
@@ -597,8 +734,15 @@ function App() {
           </div>
         </section>
 
-        <section className="dashboard-grid">
-          <div className="panel chart-panel">
+        <DndContext
+          collisionDetection={closestCenter}
+          onDragEnd={handlePanelDragEnd}
+          sensors={sensors}
+        >
+          <SortableContext items={panelOrder} strategy={rectSortingStrategy}>
+            <section className="dashboard-grid">
+              <SortablePanel id="chart" position={panelOrder.indexOf('chart')}>
+                <div className="panel chart-panel">
             <div className="panel-header">
               <div>
                 <span className="eyebrow">Category breakdown</span>
@@ -645,9 +789,11 @@ function App() {
                 </div>
               ))}
             </div>
-          </div>
+                </div>
+              </SortablePanel>
 
-          <div className="panel form-panel">
+              <SortablePanel id="expenseForm" position={panelOrder.indexOf('expenseForm')}>
+                <div className="panel form-panel">
             <div className="panel-header">
               <div>
                 <span className="eyebrow">Add expense</span>
@@ -721,9 +867,11 @@ function App() {
                 Add expense
               </button>
             </form>
-          </div>
+                </div>
+              </SortablePanel>
 
-          <div className="panel income-panel">
+              <SortablePanel id="income" position={panelOrder.indexOf('income')}>
+                <div className="panel income-panel">
             <div className="panel-header">
               <div>
                 <span className="eyebrow">Money in</span>
@@ -803,9 +951,11 @@ function App() {
                 </article>
               ))}
             </div>
-          </div>
+                </div>
+              </SortablePanel>
 
-          <div className="panel category-panel">
+              <SortablePanel id="categories" position={panelOrder.indexOf('categories')}>
+                <div className="panel category-panel">
             <div className="panel-header">
               <div>
                 <span className="eyebrow">Dropdown options</span>
@@ -856,9 +1006,11 @@ function App() {
                 </article>
               ))}
             </div>
-          </div>
+                </div>
+              </SortablePanel>
 
-          <div className="panel goals-panel">
+              <SortablePanel id="goals" position={panelOrder.indexOf('goals')}>
+                <div className="panel goals-panel">
             <div className="panel-header">
               <div>
                 <span className="eyebrow">Savings goals</span>
@@ -977,9 +1129,11 @@ function App() {
                 })
               )}
             </div>
-          </div>
+                </div>
+              </SortablePanel>
 
-          <div className="panel expense-list-panel">
+              <SortablePanel id="spendingHistory" position={panelOrder.indexOf('spendingHistory')}>
+                <div className="panel expense-list-panel">
             <div className="panel-header">
               <div>
                 <span className="eyebrow">Live entries</span>
@@ -1014,8 +1168,11 @@ function App() {
                 ))
               )}
             </div>
-          </div>
-        </section>
+                </div>
+              </SortablePanel>
+            </section>
+          </SortableContext>
+        </DndContext>
       </section>
     </main>
   )

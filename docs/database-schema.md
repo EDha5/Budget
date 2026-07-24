@@ -10,6 +10,7 @@ users/{uid}
 users/{uid}/trackers/{trackerId}
   name: string
   description: string
+  panelOrder: string[]
   ownerId: string
   createdAt: timestamp
   updatedAt: timestamp
